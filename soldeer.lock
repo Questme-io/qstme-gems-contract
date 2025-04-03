@@ -4,3 +4,10 @@ version = "5.3.0-rc.0"
 url = "https://soldeer-revisions.s3.amazonaws.com/@openzeppelin-contracts/5_3_0-rc_0_20-03-2025_07:50:31_contracts.zip"
 checksum = "9263a7aac05ad2657e94449e3dcf519712ae32f853b2e4b787c311a9ef923199"
 integrity = "5e989ed237d2abb441fe76e6002880158ba39e6c65cbda6d9d35c93068d42308"
+
+[[dependencies]]
+name = "@openzeppelin-contracts-upgradeable"
+version = "5.3.0-rc.0"
+url = "https://soldeer-revisions.s3.amazonaws.com/@openzeppelin-contracts-upgradeable/5_3_0-rc_0_20-03-2025_07:50:38_contracts-upgradeable.zip"
+checksum = "b1a81e9dae82a32d6a6bcd74697847cf8378d7f8f0cbb50a4286584418a3aea4"
+integrity = "c37b4069d9af08cda0ca10ed744713c3d1b2608448419e1d600d7850a7747cc6"
