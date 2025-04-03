@@ -38,37 +38,37 @@ abstract contract Suite_SignaturesController is Storage_SignaturesController {
         vm.assertEq(signatureController.exposed_getNextNonce(_receiver), _startingNonce + 1);
     }
 
-    function test_ComposeMintAllowanceDigest_Ok(address _receiver, bytes calldata _uri, uint256 _nonce) public view {
+    function test_ComposeClaimAllowanceDigest_Ok(address _receiver, string calldata _uri, uint256 _nonce) public view {
         bytes32 expectedDigest = signatureController.exposed_hashTypedDataV4(
             keccak256( abi.encode(
-                signatureController.SIGNATURE_STRUCT_HASH(),
+                SIGNATURE_STRUCT_HASH,
                 _receiver,
                 _uri,
                 _nonce
             )));
 
-        vm.assertEq(signatureController.exposed_composeMintAllowanceDigest(_receiver, _uri, _nonce), expectedDigest);
+        vm.assertEq(signatureController.exposed_composeClaimAllowanceDigest(_receiver, _uri, _nonce), expectedDigest);
     }
 
-    function test_ComposeNextMintAllowanceDigest_Ok(address _receiver, bytes calldata _uri, uint256 _startingNonce) public {
+    function test_ComposeNextClaimAllowanceDigest_Ok(address _receiver, string calldata _uri, uint256 _startingNonce) public {
         vm.assume(_startingNonce < type(uint256).max);
         signatureController.helper_setNonce(_receiver, _startingNonce);
 
         bytes32 expectedDigest = signatureController.exposed_hashTypedDataV4(
             keccak256( abi.encode(
-                signatureController.SIGNATURE_STRUCT_HASH(),
+                SIGNATURE_STRUCT_HASH,
                 _receiver,
                 _uri,
                 _startingNonce + 1
             )));
 
-        vm.assertEq(signatureController.composeNextMintAllowanceDigest(_receiver, _uri), expectedDigest);
+        vm.assertEq(signatureController.composeNextClaimAllowanceDigest(_receiver, _uri), expectedDigest);
     }
 
-    function test_ExtractSigner(address _receiver, bytes calldata _uri, uint32 _signerIndex) public {
+    function test_ExtractSigner(address _receiver, string calldata _uri, uint32 _signerIndex) public {
         (uint256 privateKey, address signer) = generateWallet(_signerIndex, "Signer");
 
-        bytes32 digest = signatureController.composeNextMintAllowanceDigest(_receiver, _uri);
+        bytes32 digest = signatureController.composeNextClaimAllowanceDigest(_receiver, _uri);
 
         bytes memory signature = helper_sign(privateKey, digest);
 

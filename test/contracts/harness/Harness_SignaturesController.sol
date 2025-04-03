@@ -6,8 +6,8 @@ import {SignaturesController} from "src/modules/SignaturesController.sol";
 contract Harness_SignaturesController is SignaturesController {
     constructor() SignaturesController() {}
 
-    function exposed_composeMintAllowanceDigest(address _receiver, bytes calldata _uri, uint256 _nonce) public view returns(bytes32) {
-        return _composeMintAllowanceDigest(_receiver, _uri, _nonce);
+    function exposed_composeClaimAllowanceDigest(address _receiver, string calldata _uri, uint256 _nonce) public view returns(bytes32) {
+        return _composeClaimAllowanceDigest(_receiver, _uri, _nonce);
     }
 
     function exposed_getNextNonce(address _receiver) public view returns(uint256) {
@@ -18,7 +18,7 @@ contract Harness_SignaturesController is SignaturesController {
         _incrementNonce(_receiver);
     }
 
-    function exposed_extractSigner(address _receiver, bytes calldata _uri, bytes calldata _signature) public view returns(address) {
+    function exposed_extractSigner(address _receiver, string calldata _uri, bytes calldata _signature) public view returns(address) {
         return _extractSigner(_receiver, _uri, _signature);
     }
 

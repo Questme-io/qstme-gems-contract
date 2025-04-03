@@ -8,6 +8,8 @@ import {Harness_SignaturesController} from "test/contracts/harness/Harness_Signa
 abstract contract Storage_SignaturesController is Test {
     Harness_SignaturesController public signatureController;
     string public constant TEST_MNEMONIC = "test test test test test test test test test test test junk";
+    bytes32 public constant SIGNATURE_STRUCT_HASH =
+        keccak256("MintAllowance(address to, uint256 amount, string uri, uint256 nonce)");
 
     function generateWallet(uint32 _id, string memory _name) public returns (uint256 privateKey, address addr) {
         privateKey = vm.deriveKey(TEST_MNEMONIC, _id);
