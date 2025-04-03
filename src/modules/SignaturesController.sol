@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import {EIP712} from "@openzeppelin/5.3.0/utils/cryptography/EIP712.sol";
+import {EIP712Upgradeable} from "@openzeppelin/upgradeable/5.3.0/utils/cryptography/EIP712Upgradeable.sol";
 import {ECDSA} from "@openzeppelin/5.3.0/utils/cryptography/ECDSA.sol";
 
-contract SignaturesController is EIP712 {
+contract SignaturesController is EIP712Upgradeable {
     string private constant NAME = "QstmeGems";
     string private constant VERSION = "0.1.0";
     bytes32 private constant SIGNATURE_STRUCT_HASH =
@@ -14,7 +14,9 @@ contract SignaturesController is EIP712 {
 
     event NonceUpdated(address indexed receiver, uint256 amount);
 
-    constructor() EIP712(NAME, VERSION) {}
+    function __SignaturesController_init() internal {
+        __EIP712_init(NAME, VERSION);
+    }
 
     function composeNextClaimAllowanceDigest(address _receiver, string calldata _uri) public view returns(bytes32 digest) {
         return _composeClaimAllowanceDigest(_receiver, _uri, _getNextNonce(_receiver));

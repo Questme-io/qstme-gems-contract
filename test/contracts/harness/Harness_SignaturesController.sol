@@ -4,7 +4,9 @@ pragma solidity ^0.8.10;
 import {SignaturesController} from "src/modules/SignaturesController.sol";
 
 contract Harness_SignaturesController is SignaturesController {
-    constructor() SignaturesController() {}
+    function initialize() public initializer {
+        __SignaturesController_init();
+    }
 
     function exposed_composeClaimAllowanceDigest(address _receiver, string calldata _uri, uint256 _nonce) public view returns(bytes32) {
         return _composeClaimAllowanceDigest(_receiver, _uri, _nonce);

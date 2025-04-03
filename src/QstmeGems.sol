@@ -1,11 +1,12 @@
 pragma solidity ^0.8.20;
 
-import {Strings} from "@openzeppelin/5.3.0/utils/Strings.sol";
-import {ERC721} from "@openzeppelin/5.3.0/token/ERC721/ERC721.sol";
-import {AccessControl} from "@openzeppelin/5.3.0/access/AccessControl.sol";
+import {ERC721Upgradeable} from "@openzeppelin/upgradeable/5.3.0/token/ERC721/ERC721Upgradeable.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/upgradeable/5.3.0/access/AccessControlUpgradeable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/upgradeable/5.3.0/proxy/utils/UUPSUpgradeable.sol";
+
 import {SignaturesController} from "./modules/SignaturesController.sol";
 
-contract QstmeGems is ERC721, AccessControl, SignaturesController {
+contract QstmeGems is ERC721Upgradeable, AccessControlUpgradeable, SignaturesController, UUPSUpgradeable {
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
     uint256 private nextTokenId;
@@ -21,14 +22,17 @@ contract QstmeGems is ERC721, AccessControl, SignaturesController {
 
     error NotEnoughPayment(uint256 received, uint256 expected);
 
-    constructor(
+    function initialize(
         string memory _name,
         string memory _symbol,
         uint256 _mintPrice,
         string memory _baseUri,
         address _admin,
         address _operator
-    ) ERC721(_name, _symbol) SignaturesController() {
+    ) public initializer {
+        __AccessControl_init();
+        __ERC721_init(_name, _symbol);
+
         _grantRole(DEFAULT_ADMIN_ROLE, _admin);
         _grantRole(OPERATOR_ROLE, _operator);
 
@@ -62,9 +66,9 @@ contract QstmeGems is ERC721, AccessControl, SignaturesController {
         _setBaseURI(_uri);
     }
 
-    function supportsInterface(bytes4 _interfaceId) public view override(AccessControl, ERC721) returns(bool) {
-        return AccessControl.supportsInterface(_interfaceId)
-            || ERC721.supportsInterface(_interfaceId);
+    function supportsInterface(bytes4 _interfaceId) public view override(AccessControlUpgradeable, ERC721Upgradeable) returns(bool) {
+        return AccessControlUpgradeable.supportsInterface(_interfaceId)
+            || ERC721Upgradeable.supportsInterface(_interfaceId);
     }
 
     /**
@@ -106,4 +110,6 @@ contract QstmeGems is ERC721, AccessControl, SignaturesController {
     function _baseURI() internal view override returns (string memory) {
         return baseUri;
     }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyRole(OPERATOR_ROLE) {}
 }

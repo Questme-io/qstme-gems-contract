@@ -4,15 +4,6 @@ pragma solidity ^0.8.10;
 import {QstmeGems} from "src/QstmeGems.sol";
 
 contract Harness_QstmeGems is QstmeGems {
-    constructor(
-        string memory _name,
-        string memory _symbol,
-        uint256 _mintPrice,
-        string memory _baseUri,
-        address _admin,
-        address _operator
-    ) QstmeGems(_name, _symbol, _mintPrice, _baseUri, _admin, _operator) {}
-
     function exposed_setMintPrice(uint256 _newMintPrice) public {
         _setMintPrice(_newMintPrice);
     }

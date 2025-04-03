@@ -6,7 +6,9 @@ import {Storage_QstmeGems} from "test/contracts/storage/Storage_QstmeGems.sol";
 
 abstract contract Environment_QstmeGems is Storage_QstmeGems {
     function _prepareEnv() internal override {
-        qstmeGems = new Harness_QstmeGems(
+        qstmeGems = new Harness_QstmeGems();
+
+        qstmeGems.initialize(
             name,
             symbol,
             mintPrice,
@@ -14,5 +16,6 @@ abstract contract Environment_QstmeGems is Storage_QstmeGems {
             admin,
             operator
         );
+
     }
 }

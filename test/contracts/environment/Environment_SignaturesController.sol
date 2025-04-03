@@ -7,5 +7,7 @@ import {Storage_SignaturesController} from "test/contracts/storage/Storage_Signa
 abstract contract Environment_SignaturesController is Storage_SignaturesController {
     function _prepareEnv() internal override {
         signatureController = new Harness_SignaturesController();
+
+        signatureController.initialize();
     }
 }
