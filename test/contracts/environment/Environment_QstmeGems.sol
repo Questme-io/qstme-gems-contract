@@ -14,7 +14,8 @@ abstract contract Environment_QstmeGems is Storage_QstmeGems {
             mintPrice,
             baseUri,
             admin,
-            operator
+            operator,
+            minter
         );
 
     }
