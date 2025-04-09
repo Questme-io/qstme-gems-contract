@@ -8,28 +8,16 @@ contract Harness_QstmeGems is QstmeGems {
         _setMintPrice(_newMintPrice);
     }
 
-    function exposed_setTokenURI(uint256 _tokenId, string calldata _uri) public {
-        _setTokenURI(_tokenId, _uri);
-    }
-
     function exposed_setBaseURI(string calldata _uri) public {
         _setBaseURI(_uri);
     }
 
-    function exposed_nextTokenId() public view returns(uint256) {
-        return _nextTokenId();
+    function exposed_setTokenURI(uint256 _tokenId, string calldata _uri) public {
+        _setURI(_tokenId, _uri);
     }
 
-    function exposed_baseUri() public view returns(string memory) {
-        return _baseURI();
-    }
-
-    function helper_mint(address _receiver) public returns(uint256) {
-        uint256 tokenId = _nextTokenId();
-
-        _mint(_receiver, tokenId);
-
-        return tokenId;
+    function helper_mint(address _receiver, uint256 _tokenId) public {
+        _mint(_receiver, _tokenId, 1, "");
     }
 
     function helper_grantRole(bytes32 _role, address _account) public {

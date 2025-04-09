@@ -9,8 +9,6 @@ abstract contract Environment_QstmeGems is Storage_QstmeGems {
         qstmeGems = new Harness_QstmeGems();
 
         qstmeGems.initialize(
-            name,
-            symbol,
             mintPrice,
             baseUri,
             admin,
