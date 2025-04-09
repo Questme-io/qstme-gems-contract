@@ -22,7 +22,7 @@ contract DeployGemsScript is Script {
         ERC1967Proxy proxy = new ERC1967Proxy(address(implementation), "");
 
         vm.broadcast(deployerPK);
-        QstmeGems(address(proxy)).initialize("Qstme Gems", "Gems", mintFee, baseUri, operator, msg.sender);
+        QstmeGems(address(proxy)).initialize(mintFee, baseUri, operator, msg.sender, operator);
     }
 
     function runMainnet() public {
@@ -36,6 +36,6 @@ contract DeployGemsScript is Script {
         ERC1967Proxy proxy = new ERC1967Proxy(address(implementation), "");
 
         vm.broadcast(deployerPK);
-        QstmeGems(address(proxy)).initialize("Qstme Gems", "Gems", mintFee, baseUri, admin, operator);
+        QstmeGems(address(proxy)).initialize(mintFee, baseUri, admin, operator, operator);
     }
 }
