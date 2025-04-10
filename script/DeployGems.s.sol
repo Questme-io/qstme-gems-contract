@@ -22,7 +22,7 @@ contract DeployGemsScript is Script {
         ERC1967Proxy proxy = new ERC1967Proxy(address(implementation), "");
 
         vm.broadcast(deployerPK);
-        QstmeGems(address(proxy)).initialize(mintFee, baseUri, operator, msg.sender, operator);
+        QstmeGems(address(proxy)).initialize(mintFee, baseUri, operator, operator, operator);
     }
 
     function runMainnet() public {
