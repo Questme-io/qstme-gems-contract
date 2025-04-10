@@ -77,6 +77,14 @@ contract QstmeGems is ERC1155Upgradeable, ERC1155SupplyUpgradeable, ERC1155URISt
         emit GemMinted(_receiver, _tokenId);
     }
 
+    function lazyClaim(address _receiver, uint256 _tokenId, string calldata _uri, bytes calldata _claimSignature, bytes calldata _updateUriSignature) public payable {
+        claim(_receiver, _tokenId, _claimSignature);
+
+        if (updateUriNonces[_tokenId] == 0) {
+            setTokenURI(_tokenId,  _uri, _updateUriSignature);
+        }
+    }
+
     function setMintPrice(uint256 _newMintPrice) public onlyRole(DEFAULT_ADMIN_ROLE) {
         _setMintPrice(_newMintPrice);
     }
