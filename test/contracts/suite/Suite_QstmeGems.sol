@@ -9,20 +9,6 @@ import {QstmeGems} from "src/QstmeGems.sol";
 import {Storage_QstmeGems} from "test/contracts/storage/Storage_QstmeGems.sol";
 
 abstract contract Suite_QstmeGems is Storage_QstmeGems {
-    function helper_sign(uint256 _privateKey, bytes32 _digest) public returns (bytes memory signature) {
-        address signer = vm.addr(_privateKey);
-
-        vm.startPrank(signer);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(_privateKey, _digest);
-
-        signature = abi.encodePacked(r, s, v);
-        vm.stopPrank();
-    }
-
-    function toComparable(string memory _str) public pure returns(bytes32) {
-        return keccak256(abi.encode(_str));
-    }
-
     function test_Deployment(address _receiver, uint256 _tokenId) public view {
         vm.assume(_receiver != address(0));
         assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 0);

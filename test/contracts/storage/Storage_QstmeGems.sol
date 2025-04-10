@@ -33,6 +33,21 @@ abstract contract Storage_QstmeGems is Test {
         vm.label(addr, _name);
     }
 
+    function helper_sign(uint256 _privateKey, bytes32 _digest) public returns (bytes memory signature) {
+        address signer = vm.addr(_privateKey);
+
+        vm.startPrank(signer);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(_privateKey, _digest);
+
+        signature = abi.encodePacked(r, s, v);
+        vm.stopPrank();
+    }
+
+    function toComparable(string memory _str) public pure returns(bytes32) {
+        return keccak256(abi.encode(_str));
+    }
+
+
     function _prepareEnv() internal virtual;
 
     function setUp() public virtual {
