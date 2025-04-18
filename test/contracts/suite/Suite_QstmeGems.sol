@@ -14,6 +14,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 0);
         assertTrue(qstmeGems.hasRole(DEFAULT_ADMIN_ROLE, admin));
         assertTrue(qstmeGems.hasRole(OPERATOR_ROLE, operator));
+        assertFalse(qstmeGems.mintControl(_receiver, _tokenId));
         assertEq(qstmeGems.mintPrice(), mintPrice);
     }
 
@@ -35,6 +36,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         qstmeGems.claim{ value: qstmeGems.mintPrice() }(_receiver, _tokenId, signature);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 1);
+        assertTrue(qstmeGems.mintControl(_receiver, _tokenId));
         vm.assertEq(address(qstmeGems).balance, balanceBefore + qstmeGems.mintPrice());
     }
 
@@ -69,6 +71,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         qstmeGems.claim{ value: mintPrice }(_receiver, _tokenId, signature);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 1);
+        assertTrue(qstmeGems.mintControl(_receiver, _tokenId));
         vm.assertEq(address(qstmeGems).balance, balanceBefore + mintPrice);
     }
 
@@ -93,6 +96,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         qstmeGems.claim{ value: mintPrice }(_receiver, _tokenId, signature);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 0);
+        assertFalse(qstmeGems.mintControl(_receiver, _tokenId));
         vm.assertEq(address(qstmeGems).balance, balanceBefore);
     }
 
@@ -114,6 +118,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         qstmeGems.claim{ value: mintPrice }(_receiver, _tokenId, signature);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 0);
+        assertFalse(qstmeGems.mintControl(_receiver, _tokenId));
         vm.assertEq(address(qstmeGems).balance, balanceBefore);
     }
 
@@ -140,6 +145,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         qstmeGems.claim{ value: _payment }(_receiver, _tokenId, signature);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 0);
+        assertFalse(qstmeGems.mintControl(_receiver, _tokenId));
     }
 
     function test_SetMintPrice_Ok(address _admin, uint256 _newMintPrice) public {

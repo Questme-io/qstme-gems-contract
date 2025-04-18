@@ -14,6 +14,7 @@ contract QstmeGems is ERC1155Upgradeable, ERC1155SupplyUpgradeable, ERC1155URISt
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     uint256 public mintPrice;
+    mapping(address user => mapping(uint256 tokenId => bool isMinted) tokenStatuses) public mintControl;
 
     event MintPriceChanged(uint256 newPrice);
     event GemMinted(address receiver, uint256 tokenId);
@@ -73,6 +74,8 @@ contract QstmeGems is ERC1155Upgradeable, ERC1155SupplyUpgradeable, ERC1155URISt
         if (msg.value < mintPrice) revert NotEnoughPayment(msg.value, mintPrice);
 
         _mint(_receiver, _tokenId, 1, "");
+
+        mintControl[_receiver][_tokenId] = true;
 
         emit GemMinted(_receiver, _tokenId);
     }
