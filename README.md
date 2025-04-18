@@ -2,7 +2,7 @@
 
 | Chain | Mainnet | Testnet                                     |
 |-------|---------|---------------------------------------------|
-| Base  |         | 0xe92d78e7201c7be599a3ce89b8e6622b895641e0  |
+| Base  |         | 0xC66B3D4ecddBfBaF42fA527D20D63812941D3De4  |
 
 ## Foundry
 
