@@ -7,9 +7,9 @@ import {ERC1967Proxy} from "@openzeppelin/5.3.0/proxy/ERC1967/ERC1967Proxy.sol";
 
 contract DeployGemsScript is Script {
     address public constant operator = 0x91430EC444FD8249e152aDf82a73f985b031276E;
-    address public constant admin = 0x0d0D5Ff3cFeF8B7B2b1cAC6B6C27Fd0846c09361;
-    uint256 public constant mintFee = 1e6;
-    string public constant baseUri = "";
+    address public constant admin = 0x885CefFc2f5428C3A2C5895204335ED6dcf466a1;
+    uint256 public constant mintFee = 50_000_000_000_000;
+    string public constant baseUri = "https://ipfs.io/ipfs/bafybeifavt7m2xrorr6lmxb3gnolfmootyyp6sczpqkjatoiv2z2357ufa/";
 
     function runTestnet() public {
         vm.createSelectFork("baseSepolia");

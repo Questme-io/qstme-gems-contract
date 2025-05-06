@@ -16,7 +16,7 @@ deployTestnet:
 
 deployMainnet:
 	forge script script/DeployGems.s.sol:DeployGemsScript \
-	--sig "runTestnet()" \
+	--sig "runMainnet()" \
 	-vvvv \
 	--etherscan-api-key ${BASESCAN_API_KEY} \
 # 	--verify \

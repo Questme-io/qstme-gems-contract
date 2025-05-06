@@ -1,8 +1,8 @@
 ## Deployments
 
-| Chain | Mainnet | Testnet                                     |
-|-------|---------|---------------------------------------------|
-| Base  |         | 0xC66B3D4ecddBfBaF42fA527D20D63812941D3De4  |
+| Chain | Mainnet                                    | Testnet                                     |
+|-------|--------------------------------------------|---------------------------------------------|
+| Base  | 0xcb59f1be5235f045128b27a1ce29aea13fa2d6e5 | 0xC66B3D4ecddBfBaF42fA527D20D63812941D3De4  |
 
 ## Foundry
 
