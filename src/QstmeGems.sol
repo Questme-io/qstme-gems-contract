@@ -12,6 +12,7 @@ import "./modules/WithdrawingController.sol";
 contract QstmeGems is ERC1155Upgradeable, ERC1155SupplyUpgradeable, ERC1155URIStorageUpgradeable, AccessControlUpgradeable, SignaturesController, WithdrawingController, UUPSUpgradeable {
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    string public constant name = "QuestMe GEM"; // Name for opensea
 
     uint256 public mintPrice;
     mapping(address user => mapping(uint256 tokenId => bool isMinted) tokenStatuses) public mintControl;
