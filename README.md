@@ -1,3 +1,9 @@
+## Deployments
+
+| Chain | Mainnet                                    | Testnet                                     |
+|-------|--------------------------------------------|---------------------------------------------|
+| Base  | 0x7D5aCbAEE4aCcAA4c6fF9ca3F663DD9C28F5df6E | 0xC66B3D4ecddBfBaF42fA527D20D63812941D3De4  |
+
 ## Foundry
 
 **Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
@@ -43,12 +49,6 @@ $ forge snapshot
 
 ```shell
 $ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
 ```
 
 ### Cast
