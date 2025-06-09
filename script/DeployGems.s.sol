@@ -27,7 +27,7 @@ contract DeployGemsScript is Script {
     }
 
     function runMainnet() public {
-        require(address(proxy)==address(0), "Already deployed");
+        require(address(proxy) == address(0), "Already deployed");
         vm.createSelectFork("base");
         uint256 deployerPK = vm.envUint("DEPLOYER_KEY");
 
@@ -51,6 +51,5 @@ contract DeployGemsScript is Script {
 
         vm.broadcast(operatorPK);
         proxy.upgradeToAndCall(address(implementation), "");
-
     }
 }

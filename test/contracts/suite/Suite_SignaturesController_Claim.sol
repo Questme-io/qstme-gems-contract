@@ -30,27 +30,23 @@ abstract contract Suite_SignaturesController_Claim is Storage_SignaturesControll
 
     function test_ComposeClaimAllowanceDigest_Ok(address _receiver, uint256 _tokenId, uint256 _nonce) public view {
         bytes32 expectedDigest = signatureController.exposed_hashTypedDataV4(
-            keccak256( abi.encode(
-                CLAIM_SIGNATURE_STRUCT_HASH,
-                _receiver,
-                _tokenId,
-                _nonce
-            )));
+            keccak256(abi.encode(CLAIM_SIGNATURE_STRUCT_HASH, _receiver, _tokenId, _nonce))
+        );
 
-        vm.assertEq(signatureController.exposed_composeClaimAllowanceDigest(_receiver, _tokenId, _nonce), expectedDigest);
+        vm.assertEq(
+            signatureController.exposed_composeClaimAllowanceDigest(_receiver, _tokenId, _nonce), expectedDigest
+        );
     }
 
-    function test_ComposeNextClaimAllowanceDigest_Ok(address _receiver, uint256 _tokenId, uint256 _startingNonce) public {
+    function test_ComposeNextClaimAllowanceDigest_Ok(address _receiver, uint256 _tokenId, uint256 _startingNonce)
+        public
+    {
         vm.assume(_startingNonce < type(uint256).max);
         signatureController.helper_setClaimNonce(_receiver, _startingNonce);
 
         bytes32 expectedDigest = signatureController.exposed_hashTypedDataV4(
-            keccak256( abi.encode(
-                CLAIM_SIGNATURE_STRUCT_HASH,
-                _receiver,
-                _tokenId,
-                _startingNonce + 1
-            )));
+            keccak256(abi.encode(CLAIM_SIGNATURE_STRUCT_HASH, _receiver, _tokenId, _startingNonce + 1))
+        );
 
         vm.assertEq(signatureController.composeNextClaimAllowanceDigest(_receiver, _tokenId), expectedDigest);
     }

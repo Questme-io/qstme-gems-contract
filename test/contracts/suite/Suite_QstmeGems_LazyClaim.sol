@@ -9,7 +9,13 @@ import {QstmeGems} from "src/QstmeGems.sol";
 import {Storage_QstmeGems} from "test/contracts/storage/Storage_QstmeGems.sol";
 
 abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
-    function test_LazyClaim_Ok(address _receiver, uint256 _tokenId, string calldata _newTokenUri, uint32 _minterIndex, uint32 _operatorIndex) public {
+    function test_LazyClaim_Ok(
+        address _receiver,
+        uint256 _tokenId,
+        string calldata _newTokenUri,
+        uint32 _minterIndex,
+        uint32 _operatorIndex
+    ) public {
         assumeUnusedAddress(_receiver);
 
         (uint256 minterPK, address minter) = generateWallet(_minterIndex, "Minter");
@@ -34,7 +40,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         vm.expectEmit();
         emit IERC1155.URI(expectedFullUri, _tokenId);
 
-        qstmeGems.lazyClaim{ value: mintPrice }(_receiver, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
+        qstmeGems.lazyClaim{value: mintPrice}(_receiver, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 1);
         vm.assertEq(address(qstmeGems).balance, balanceBefore + qstmeGems.mintPrice());
@@ -42,7 +48,14 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(expectedFullUri));
     }
 
-    function test_LazyClaim_Ok_IfCallingLazyMintConcurrently(address _receiver1, address _receiver2, uint256 _tokenId, string calldata _newTokenUri, uint32 _minterIndex, uint32 _operatorIndex) public {
+    function test_LazyClaim_Ok_IfCallingLazyMintConcurrently(
+        address _receiver1,
+        address _receiver2,
+        uint256 _tokenId,
+        string calldata _newTokenUri,
+        uint32 _minterIndex,
+        uint32 _operatorIndex
+    ) public {
         assumeUnusedAddress(_receiver1);
         assumeUnusedAddress(_receiver2);
         vm.assume(_receiver1 != _receiver2);
@@ -69,7 +82,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         vm.expectEmit();
         emit IERC1155.URI(expectedFullUri, _tokenId);
 
-        qstmeGems.lazyClaim{ value: mintPrice }(_receiver1, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
+        qstmeGems.lazyClaim{value: mintPrice}(_receiver1, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver1, _tokenId), 1);
         vm.assertEq(qstmeGems.balanceOf(_receiver2, _tokenId), 0);
@@ -86,7 +99,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         vm.expectEmit();
         emit QstmeGems.GemMinted(_receiver2, _tokenId);
 
-        qstmeGems.lazyClaim{ value: mintPrice }(_receiver2, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
+        qstmeGems.lazyClaim{value: mintPrice}(_receiver2, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver1, _tokenId), 1);
         vm.assertEq(qstmeGems.balanceOf(_receiver2, _tokenId), 1);
@@ -96,7 +109,13 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(expectedFullUri));
     }
 
-    function test_LazyClaim_Revert_IfMintingSameGemSecondTime(address _receiver, uint256 _tokenId, string calldata _newTokenUri, uint32 _minterIndex, uint32 _operatorIndex) public {
+    function test_LazyClaim_Revert_IfMintingSameGemSecondTime(
+        address _receiver,
+        uint256 _tokenId,
+        string calldata _newTokenUri,
+        uint32 _minterIndex,
+        uint32 _operatorIndex
+    ) public {
         assumeUnusedAddress(_receiver);
 
         (uint256 minterPK, address minter) = generateWallet(_minterIndex, "Minter");
@@ -121,7 +140,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         vm.expectEmit();
         emit IERC1155.URI(expectedFullUri, _tokenId);
 
-        qstmeGems.lazyClaim{ value: mintPrice }(_receiver, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
+        qstmeGems.lazyClaim{value: mintPrice}(_receiver, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 1);
         assertTrue(qstmeGems.mintControl(_receiver, _tokenId));
@@ -133,13 +152,9 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
 
         signatureClaim = helper_sign(minterPK, digestClaim);
 
-        vm.expectRevert(abi.encodeWithSelector(
-            QstmeGems.AlreadyOwned.selector,
-            _receiver,
-            _tokenId
-        ));
+        vm.expectRevert(abi.encodeWithSelector(QstmeGems.AlreadyOwned.selector, _receiver, _tokenId));
 
-        qstmeGems.lazyClaim{ value: mintPrice }(_receiver, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
+        qstmeGems.lazyClaim{value: mintPrice}(_receiver, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 1);
         assertTrue(qstmeGems.mintControl(_receiver, _tokenId));
@@ -147,7 +162,13 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(expectedFullUri));
     }
 
-    function test_LazyClaim_Revert_IfMintSignerIsNotAMinter(address _receiver, uint256 _tokenId, string calldata _newTokenUri, uint32 _anonymIndex, uint32 _operatorIndex) public {
+    function test_LazyClaim_Revert_IfMintSignerIsNotAMinter(
+        address _receiver,
+        uint256 _tokenId,
+        string calldata _newTokenUri,
+        uint32 _anonymIndex,
+        uint32 _operatorIndex
+    ) public {
         assumeUnusedAddress(_receiver);
 
         (uint256 anonymPK, address anonym) = generateWallet(_anonymIndex, "Anonym");
@@ -165,14 +186,10 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         uint256 mintPrice = qstmeGems.mintPrice();
 
         vm.expectRevert(
-            abi.encodeWithSelector(
-                IAccessControl.AccessControlUnauthorizedAccount.selector,
-                anonym,
-                MINTER_ROLE
-            )
+            abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, anonym, MINTER_ROLE)
         );
 
-        qstmeGems.lazyClaim{ value: mintPrice }(_receiver, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
+        qstmeGems.lazyClaim{value: mintPrice}(_receiver, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 0);
         assertFalse(qstmeGems.mintControl(_receiver, _tokenId));
@@ -180,7 +197,14 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(baseUri));
     }
 
-    function test_LazyClaim_Revert_IfMintDigestIsInvalid(address _receiver, address _receiverDigest, uint256 _tokenId, string calldata _newTokenUri, uint32 _minterIndex, uint32 _operatorIndex) public {
+    function test_LazyClaim_Revert_IfMintDigestIsInvalid(
+        address _receiver,
+        address _receiverDigest,
+        uint256 _tokenId,
+        string calldata _newTokenUri,
+        uint32 _minterIndex,
+        uint32 _operatorIndex
+    ) public {
         assumeUnusedAddress(_receiver);
         vm.assume(_receiver != _receiverDigest);
 
@@ -201,7 +225,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
 
         vm.expectPartialRevert(IAccessControl.AccessControlUnauthorizedAccount.selector);
 
-        qstmeGems.lazyClaim{ value: mintPrice }(_receiver, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
+        qstmeGems.lazyClaim{value: mintPrice}(_receiver, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 0);
         assertFalse(qstmeGems.mintControl(_receiver, _tokenId));
@@ -209,7 +233,13 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(baseUri));
     }
 
-    function test_LazyClaim_Revert_IfUpdateUriSignerIsNotAnOperator(address _receiver, uint256 _tokenId, string calldata _newTokenUri, uint32 _minterIndex, uint32 _anonymIndex) public {
+    function test_LazyClaim_Revert_IfUpdateUriSignerIsNotAnOperator(
+        address _receiver,
+        uint256 _tokenId,
+        string calldata _newTokenUri,
+        uint32 _minterIndex,
+        uint32 _anonymIndex
+    ) public {
         assumeUnusedAddress(_receiver);
 
         (uint256 minterPK, address minter) = generateWallet(_minterIndex, "Minter");
@@ -227,14 +257,10 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         uint256 mintPrice = qstmeGems.mintPrice();
 
         vm.expectRevert(
-            abi.encodeWithSelector(
-                IAccessControl.AccessControlUnauthorizedAccount.selector,
-                anonym,
-                OPERATOR_ROLE
-            )
+            abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, anonym, OPERATOR_ROLE)
         );
 
-        qstmeGems.lazyClaim{ value: mintPrice }(_receiver, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
+        qstmeGems.lazyClaim{value: mintPrice}(_receiver, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 0);
         assertFalse(qstmeGems.mintControl(_receiver, _tokenId));
@@ -242,7 +268,14 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(baseUri));
     }
 
-    function test_LazyClaim_Revert_IfUpdateUriDigestIsInvalid(address _receiver, uint256 _tokenId, uint256 _tokenIdDigest, string calldata _newTokenUri, uint32 _minterIndex, uint32 _operatorIndex) public {
+    function test_LazyClaim_Revert_IfUpdateUriDigestIsInvalid(
+        address _receiver,
+        uint256 _tokenId,
+        uint256 _tokenIdDigest,
+        string calldata _newTokenUri,
+        uint32 _minterIndex,
+        uint32 _operatorIndex
+    ) public {
         assumeUnusedAddress(_receiver);
         vm.assume(_tokenId != _tokenIdDigest);
 
@@ -264,7 +297,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
 
         vm.expectPartialRevert(IAccessControl.AccessControlUnauthorizedAccount.selector);
 
-        qstmeGems.lazyClaim{ value: mintPrice }(_receiver, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
+        qstmeGems.lazyClaim{value: mintPrice}(_receiver, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 0);
         assertFalse(qstmeGems.mintControl(_receiver, _tokenId));
@@ -272,7 +305,14 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(baseUri));
     }
 
-    function test_LazyClaim_Revert_IfPaymentIsNotOk(uint256 _payment, address _receiver, uint256 _tokenId, string calldata _newTokenUri, uint32 _minterIndex, uint32 _operatorIndex) public {
+    function test_LazyClaim_Revert_IfPaymentIsNotOk(
+        uint256 _payment,
+        address _receiver,
+        uint256 _tokenId,
+        string calldata _newTokenUri,
+        uint32 _minterIndex,
+        uint32 _operatorIndex
+    ) public {
         assumeUnusedAddress(_receiver);
         vm.assume(_payment < qstmeGems.mintPrice());
 
@@ -292,15 +332,9 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         uint256 balanceBefore = address(qstmeGems).balance;
         uint256 mintPrice = qstmeGems.mintPrice();
 
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                QstmeGems.NotEnoughPayment.selector,
-                _payment,
-                qstmeGems.mintPrice()
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(QstmeGems.NotEnoughPayment.selector, _payment, qstmeGems.mintPrice()));
 
-        qstmeGems.lazyClaim{ value: _payment }(_receiver, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
+        qstmeGems.lazyClaim{value: _payment}(_receiver, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 0);
         assertFalse(qstmeGems.mintControl(_receiver, _tokenId));

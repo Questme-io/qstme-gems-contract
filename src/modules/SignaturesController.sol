@@ -22,37 +22,43 @@ contract SignaturesController is EIP712Upgradeable {
         __EIP712_init(NAME, VERSION);
     }
 
-    function composeNextClaimAllowanceDigest(address _receiver, uint256 _tokenId) public view returns(bytes32 digest) {
+    function composeNextClaimAllowanceDigest(address _receiver, uint256 _tokenId)
+        public
+        view
+        returns (bytes32 digest)
+    {
         return _composeClaimAllowanceDigest(_receiver, _tokenId, _getNextClaimNonce(_receiver));
     }
 
-    function composeNextUpdateUriAllowanceDigest(uint256 _tokenId, string calldata _uri) public view returns(bytes32 digest) {
+    function composeNextUpdateUriAllowanceDigest(uint256 _tokenId, string calldata _uri)
+        public
+        view
+        returns (bytes32 digest)
+    {
         return _composeUpdateUriAllowanceDigest(_tokenId, _uri, _getNextUpdateUriNonce(_tokenId));
     }
 
-    function _composeClaimAllowanceDigest(address _receiver, uint256 _tokenId, uint256 _nonce) internal view returns(bytes32 digest) {
-        digest = _hashTypedDataV4(keccak256( abi.encode(
-            CLAIM_SIGNATURE_STRUCT_HASH,
-            _receiver,
-            _tokenId,
-            _nonce
-        )));
+    function _composeClaimAllowanceDigest(address _receiver, uint256 _tokenId, uint256 _nonce)
+        internal
+        view
+        returns (bytes32 digest)
+    {
+        digest = _hashTypedDataV4(keccak256(abi.encode(CLAIM_SIGNATURE_STRUCT_HASH, _receiver, _tokenId, _nonce)));
     }
 
-    function _composeUpdateUriAllowanceDigest(uint256 _tokenId, string calldata _uri, uint256 _nonce) internal view returns(bytes32 digest) {
-        digest = _hashTypedDataV4(keccak256( abi.encode(
-            UPDATE_URI_SIGNATURE_STRUCT_HASH,
-            _tokenId,
-            _uri,
-            _nonce
-        )));
+    function _composeUpdateUriAllowanceDigest(uint256 _tokenId, string calldata _uri, uint256 _nonce)
+        internal
+        view
+        returns (bytes32 digest)
+    {
+        digest = _hashTypedDataV4(keccak256(abi.encode(UPDATE_URI_SIGNATURE_STRUCT_HASH, _tokenId, _uri, _nonce)));
     }
 
-    function _getNextClaimNonce(address _receiver) internal view returns(uint256) {
+    function _getNextClaimNonce(address _receiver) internal view returns (uint256) {
         return claimNonces[_receiver] + 1;
     }
 
-    function _getNextUpdateUriNonce(uint256 _tokenId) internal view returns(uint256) {
+    function _getNextUpdateUriNonce(uint256 _tokenId) internal view returns (uint256) {
         return updateUriNonces[_tokenId] + 1;
     }
 
@@ -70,13 +76,21 @@ contract SignaturesController is EIP712Upgradeable {
         emit UpdateUriNonceUpdated(_tokenId, newNonce);
     }
 
-    function _extractClaimSigner(address _receiver, uint256 _tokenId, bytes calldata _signature) internal view returns(address) {
+    function _extractClaimSigner(address _receiver, uint256 _tokenId, bytes calldata _signature)
+        internal
+        view
+        returns (address)
+    {
         bytes32 digest = composeNextClaimAllowanceDigest(_receiver, _tokenId);
 
         return ECDSA.recover(digest, _signature);
     }
 
-    function _extractUpdateUriSigner(uint256 _tokenId, string calldata _uri, bytes calldata _signature) internal view returns(address) {
+    function _extractUpdateUriSigner(uint256 _tokenId, string calldata _uri, bytes calldata _signature)
+        internal
+        view
+        returns (address)
+    {
         bytes32 digest = composeNextUpdateUriAllowanceDigest(_tokenId, _uri);
 
         return ECDSA.recover(digest, _signature);

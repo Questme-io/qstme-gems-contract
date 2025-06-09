@@ -28,29 +28,26 @@ abstract contract Suite_SignaturesController_UpdateUri is Storage_SignaturesCont
         vm.assertEq(signatureController.exposed_getNextUpdateUriNonce(_tokenId), _startingNonce + 1);
     }
 
-    function test_ComposeUpdateUriAllowanceDigest_Ok(uint256 _tokenId, string calldata _uri, uint256 _nonce) public view {
+    function test_ComposeUpdateUriAllowanceDigest_Ok(uint256 _tokenId, string calldata _uri, uint256 _nonce)
+        public
+        view
+    {
         bytes32 expectedDigest = signatureController.exposed_hashTypedDataV4(
-            keccak256( abi.encode(
-                UPDATE_URI_SIGNATURE_STRUCT_HASH,
-                _tokenId,
-                _uri,
-                _nonce
-            )));
+            keccak256(abi.encode(UPDATE_URI_SIGNATURE_STRUCT_HASH, _tokenId, _uri, _nonce))
+        );
 
         vm.assertEq(signatureController.exposed_composeUpdateUriAllowanceDigest(_tokenId, _uri, _nonce), expectedDigest);
     }
 
-    function test_ComposeNextUpdateUriAllowanceDigest_Ok(uint256 _tokenId, string calldata _uri, uint256 _startingNonce) public {
+    function test_ComposeNextUpdateUriAllowanceDigest_Ok(uint256 _tokenId, string calldata _uri, uint256 _startingNonce)
+        public
+    {
         vm.assume(_startingNonce < type(uint256).max);
         signatureController.helper_setUpdateUriNonce(_tokenId, _startingNonce);
 
         bytes32 expectedDigest = signatureController.exposed_hashTypedDataV4(
-            keccak256( abi.encode(
-                UPDATE_URI_SIGNATURE_STRUCT_HASH,
-                _tokenId,
-                _uri,
-                _startingNonce + 1
-            )));
+            keccak256(abi.encode(UPDATE_URI_SIGNATURE_STRUCT_HASH, _tokenId, _uri, _startingNonce + 1))
+        );
 
         vm.assertEq(signatureController.composeNextUpdateUriAllowanceDigest(_tokenId, _uri), expectedDigest);
     }

@@ -43,10 +43,9 @@ abstract contract Storage_QstmeGems is Test {
         vm.stopPrank();
     }
 
-    function toComparable(string memory _str) public pure returns(bytes32) {
+    function toComparable(string memory _str) public pure returns (bytes32) {
         return keccak256(abi.encode(_str));
     }
-
 
     function _prepareEnv() internal virtual;
 

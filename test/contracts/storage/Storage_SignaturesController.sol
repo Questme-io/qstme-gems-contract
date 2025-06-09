@@ -19,6 +19,7 @@ abstract contract Storage_SignaturesController is Test {
 
         vm.label(addr, _name);
     }
+
     function helper_sign(uint256 _privateKey, bytes32 _digest) public returns (bytes memory signature) {
         address signer = vm.addr(_privateKey);
 

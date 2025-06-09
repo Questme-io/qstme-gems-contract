@@ -33,14 +33,16 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         vm.expectEmit();
         emit QstmeGems.GemMinted(_receiver, _tokenId);
 
-        qstmeGems.claim{ value: qstmeGems.mintPrice() }(_receiver, _tokenId, signature);
+        qstmeGems.claim{value: qstmeGems.mintPrice()}(_receiver, _tokenId, signature);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 1);
         assertTrue(qstmeGems.mintControl(_receiver, _tokenId));
         vm.assertEq(address(qstmeGems).balance, balanceBefore + qstmeGems.mintPrice());
     }
 
-    function test_Claim_Revert_IfMintingSameGemSecondTime(address _receiver, uint256 _tokenId, uint32 minterIndex) public {
+    function test_Claim_Revert_IfMintingSameGemSecondTime(address _receiver, uint256 _tokenId, uint32 minterIndex)
+        public
+    {
         assumeUnusedAddress(_receiver);
 
         (uint256 minterPK, address minter) = generateWallet(minterIndex, "Minter");
@@ -56,19 +58,15 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         vm.expectEmit();
         emit QstmeGems.GemMinted(_receiver, _tokenId);
 
-        qstmeGems.claim{ value: mintPrice }(_receiver, _tokenId, signature);
+        qstmeGems.claim{value: mintPrice}(_receiver, _tokenId, signature);
 
         digest = qstmeGems.composeNextClaimAllowanceDigest(_receiver, _tokenId);
 
         signature = helper_sign(minterPK, digest);
 
-        vm.expectRevert(abi.encodeWithSelector(
-            QstmeGems.AlreadyOwned.selector,
-            _receiver,
-            _tokenId
-        ));
+        vm.expectRevert(abi.encodeWithSelector(QstmeGems.AlreadyOwned.selector, _receiver, _tokenId));
 
-        qstmeGems.claim{ value: mintPrice }(_receiver, _tokenId, signature);
+        qstmeGems.claim{value: mintPrice}(_receiver, _tokenId, signature);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 1);
         assertTrue(qstmeGems.mintControl(_receiver, _tokenId));
@@ -86,21 +84,22 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         uint256 balanceBefore = address(qstmeGems).balance;
 
         vm.expectRevert(
-            abi.encodeWithSelector(
-                IAccessControl.AccessControlUnauthorizedAccount.selector,
-                signer,
-                MINTER_ROLE
-            )
+            abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, signer, MINTER_ROLE)
         );
 
-        qstmeGems.claim{ value: mintPrice }(_receiver, _tokenId, signature);
+        qstmeGems.claim{value: mintPrice}(_receiver, _tokenId, signature);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 0);
         assertFalse(qstmeGems.mintControl(_receiver, _tokenId));
         vm.assertEq(address(qstmeGems).balance, balanceBefore);
     }
 
-    function test_Claim_Revert_IfDigestIsInvalid(address _receiver, address _receiverDigest, uint256 _tokenId, uint32 minterIndex) public {
+    function test_Claim_Revert_IfDigestIsInvalid(
+        address _receiver,
+        address _receiverDigest,
+        uint256 _tokenId,
+        uint32 minterIndex
+    ) public {
         vm.assume(_receiver != address(0));
         vm.assume(_receiver != _receiverDigest);
 
@@ -115,14 +114,19 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
 
         vm.expectPartialRevert(IAccessControl.AccessControlUnauthorizedAccount.selector);
 
-        qstmeGems.claim{ value: mintPrice }(_receiver, _tokenId, signature);
+        qstmeGems.claim{value: mintPrice}(_receiver, _tokenId, signature);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 0);
         assertFalse(qstmeGems.mintControl(_receiver, _tokenId));
         vm.assertEq(address(qstmeGems).balance, balanceBefore);
     }
 
-    function test_Claim_Revert_IfPaymentIsNotOk(uint256 _payment, address _receiver, uint256 _tokenId, uint32 minterIndex) public {
+    function test_Claim_Revert_IfPaymentIsNotOk(
+        uint256 _payment,
+        address _receiver,
+        uint256 _tokenId,
+        uint32 minterIndex
+    ) public {
         vm.assume(_payment < qstmeGems.mintPrice());
         vm.assume(_receiver != address(0));
 
@@ -134,15 +138,9 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
 
         bytes memory signature = helper_sign(minterPK, digest);
 
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                QstmeGems.NotEnoughPayment.selector,
-                _payment,
-                qstmeGems.mintPrice()
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(QstmeGems.NotEnoughPayment.selector, _payment, qstmeGems.mintPrice()));
 
-        qstmeGems.claim{ value: _payment }(_receiver, _tokenId, signature);
+        qstmeGems.claim{value: _payment}(_receiver, _tokenId, signature);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 0);
         assertFalse(qstmeGems.mintControl(_receiver, _tokenId));
@@ -168,9 +166,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                IAccessControl.AccessControlUnauthorizedAccount.selector,
-                _anonym,
-                DEFAULT_ADMIN_ROLE
+                IAccessControl.AccessControlUnauthorizedAccount.selector, _anonym, DEFAULT_ADMIN_ROLE
             )
         );
 
@@ -196,7 +192,11 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(expectedFullUri));
     }
 
-    function test_SetTokenUri_Revert_IfSignerIsNotAnOperator(uint256 _tokenId, string calldata _newTokenUri, uint32 anonymIndex) public {
+    function test_SetTokenUri_Revert_IfSignerIsNotAnOperator(
+        uint256 _tokenId,
+        string calldata _newTokenUri,
+        uint32 anonymIndex
+    ) public {
         (uint256 anonymPK, address anonym) = generateWallet(anonymIndex, "Anonym");
 
         bytes32 digest = qstmeGems.composeNextUpdateUriAllowanceDigest(_tokenId, _newTokenUri);
@@ -204,11 +204,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         bytes memory signature = helper_sign(anonymPK, digest);
 
         vm.expectRevert(
-            abi.encodeWithSelector(
-                IAccessControl.AccessControlUnauthorizedAccount.selector,
-                anonym,
-                OPERATOR_ROLE
-            )
+            abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, anonym, OPERATOR_ROLE)
         );
 
         vm.prank(anonym);
@@ -217,7 +213,12 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(baseUri));
     }
 
-    function test_SetBaseUri_Ok(address _operator, string calldata _newBaseUri, uint256 _tokenId, string calldata _tokenUri) public {
+    function test_SetBaseUri_Ok(
+        address _operator,
+        string calldata _newBaseUri,
+        uint256 _tokenId,
+        string calldata _tokenUri
+    ) public {
         vm.assume(bytes(_tokenUri).length > 0);
         vm.assume(_operator != address(0));
 
@@ -233,18 +234,19 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(string.concat(_newBaseUri, _tokenUri)));
     }
 
-    function test_SetBaseUri_Revert_IfCallerIsNotAnOperator(address _anonym, string calldata _newBaseUri, uint256 _tokenId, string calldata _tokenUri) public {
+    function test_SetBaseUri_Revert_IfCallerIsNotAnOperator(
+        address _anonym,
+        string calldata _newBaseUri,
+        uint256 _tokenId,
+        string calldata _tokenUri
+    ) public {
         vm.assume(_anonym != address(0));
         vm.assume(!qstmeGems.hasRole(OPERATOR_ROLE, _anonym));
 
         qstmeGems.exposed_setTokenURI(_tokenId, _tokenUri);
 
         vm.expectRevert(
-            abi.encodeWithSelector(
-                IAccessControl.AccessControlUnauthorizedAccount.selector,
-                _anonym,
-                OPERATOR_ROLE
-            )
+            abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, _anonym, OPERATOR_ROLE)
         );
 
         vm.prank(_anonym);
@@ -253,11 +255,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(string.concat(baseUri, _tokenUri)));
     }
 
-    function test_withdraw_Ok_ERC20asset(
-        address _receiver,
-        Asset memory _asset,
-        uint32 _adminIndex
-    ) public {
+    function test_withdraw_Ok_ERC20asset(address _receiver, Asset memory _asset, uint32 _adminIndex) public {
         assumeUnusedAddress(_receiver);
         assumeUnusedAddress(_asset.assetAddress);
 
@@ -283,11 +281,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         assertEq(receiverBalanceAfter, receiverBalanceBefore + _asset.amount);
     }
 
-    function test_withdraw_Ok_NativeAsset(
-        address _receiver,
-        Asset memory _asset,
-        uint32 _adminIndex
-    ) public {
+    function test_withdraw_Ok_NativeAsset(address _receiver, Asset memory _asset, uint32 _adminIndex) public {
         vm.assume(_receiver != address(qstmeGems));
         assumePayable(_receiver);
 
@@ -312,11 +306,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         assertEq(receiverBalanceAfter, receiverBalanceBefore + _asset.amount);
     }
 
-    function test_withdraw_RevertIf_NotAnAdmin(
-        address _receiver,
-        Asset memory _asset,
-        uint32 _anonymIndex
-    ) public {
+    function test_withdraw_RevertIf_NotAnAdmin(address _receiver, Asset memory _asset, uint32 _anonymIndex) public {
         vm.assume(_receiver != address(qstmeGems));
         assumePayable(_receiver);
 
@@ -328,11 +318,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         uint256 receiverBalanceBefore = address(_receiver).balance;
 
         vm.expectRevert(
-            abi.encodeWithSelector(
-                IAccessControl.AccessControlUnauthorizedAccount.selector,
-                anonym,
-                DEFAULT_ADMIN_ROLE
-            )
+            abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, anonym, DEFAULT_ADMIN_ROLE)
         );
 
         vm.prank(anonym);
@@ -344,5 +330,4 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         assertEq(contractBalanceAfter, contractBalanceBefore);
         assertEq(receiverBalanceAfter, receiverBalanceBefore);
     }
-
 }
