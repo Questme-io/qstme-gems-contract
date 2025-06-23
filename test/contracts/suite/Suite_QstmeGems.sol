@@ -41,7 +41,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
     }
 
     function test_Claim_Revert_IfMintingSameGemSecondTime(address _receiver, uint256 _tokenId, uint32 minterIndex)
-        public
+    public
     {
         assumeUnusedAddress(_receiver);
 
@@ -141,6 +141,134 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         vm.expectRevert(abi.encodeWithSelector(QstmeGems.NotEnoughPayment.selector, _payment, qstmeGems.mintPrice()));
 
         qstmeGems.claim{value: _payment}(_receiver, _tokenId, signature);
+
+        vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 0);
+        assertFalse(qstmeGems.mintControl(_receiver, _tokenId));
+    }
+
+    function test_MintGem_Claim_Ok(address _receiver, uint256 _tokenId, uint32 minterIndex) public {
+        assumeUnusedAddress(_receiver);
+
+        (uint256 minterPK, address minter) = generateWallet(minterIndex, "Minter");
+
+        qstmeGems.helper_grantRole(MINTER_ROLE, minter);
+
+        bytes32 digest = qstmeGems.composeNextClaimAllowanceDigest(_receiver, _tokenId);
+
+        bytes memory signature = helper_sign(minterPK, digest);
+        uint256 balanceBefore = address(qstmeGems).balance;
+
+        vm.expectEmit();
+        emit QstmeGems.GemMinted(_receiver, _tokenId);
+
+        qstmeGems.mintGem{value: qstmeGems.mintPrice()}(_receiver, _tokenId, signature);
+
+        vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 1);
+        assertTrue(qstmeGems.mintControl(_receiver, _tokenId));
+        vm.assertEq(address(qstmeGems).balance, balanceBefore + qstmeGems.mintPrice());
+    }
+
+    function test_MintGem_Claim_Revert_IfMintingSameGemSecondTime(address _receiver, uint256 _tokenId, uint32 minterIndex)
+    public
+    {
+        assumeUnusedAddress(_receiver);
+
+        (uint256 minterPK, address minter) = generateWallet(minterIndex, "Minter");
+
+        qstmeGems.helper_grantRole(MINTER_ROLE, minter);
+
+        bytes32 digest = qstmeGems.composeNextClaimAllowanceDigest(_receiver, _tokenId);
+
+        bytes memory signature = helper_sign(minterPK, digest);
+        uint256 balanceBefore = address(qstmeGems).balance;
+        uint256 mintPrice = qstmeGems.mintPrice();
+
+        vm.expectEmit();
+        emit QstmeGems.GemMinted(_receiver, _tokenId);
+
+        qstmeGems.mintGem{value: mintPrice}(_receiver, _tokenId, signature);
+
+        digest = qstmeGems.composeNextClaimAllowanceDigest(_receiver, _tokenId);
+
+        signature = helper_sign(minterPK, digest);
+
+        vm.expectRevert(abi.encodeWithSelector(QstmeGems.AlreadyOwned.selector, _receiver, _tokenId));
+
+        qstmeGems.claim{value: mintPrice}(_receiver, _tokenId, signature);
+
+        vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 1);
+        assertTrue(qstmeGems.mintControl(_receiver, _tokenId));
+        vm.assertEq(address(qstmeGems).balance, balanceBefore + mintPrice);
+    }
+
+    function test_MintGem_Claim_Revert_IfSignerIsNotAMinter(address _receiver, uint256 _tokenId, uint32 signerIndex) public {
+        vm.assume(_receiver != address(0));
+
+        (uint256 signerPK, address signer) = generateWallet(signerIndex, "Signer");
+
+        bytes32 digest = qstmeGems.composeNextClaimAllowanceDigest(_receiver, _tokenId);
+
+        bytes memory signature = helper_sign(signerPK, digest);
+        uint256 balanceBefore = address(qstmeGems).balance;
+
+        vm.expectRevert(
+            abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, signer, MINTER_ROLE)
+        );
+
+        qstmeGems.mintGem{value: mintPrice}(_receiver, _tokenId, signature);
+
+        vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 0);
+        assertFalse(qstmeGems.mintControl(_receiver, _tokenId));
+        vm.assertEq(address(qstmeGems).balance, balanceBefore);
+    }
+
+    function test_MintGem_Claim_Revert_IfDigestIsInvalid(
+        address _receiver,
+        address _receiverDigest,
+        uint256 _tokenId,
+        uint32 minterIndex
+    ) public {
+        vm.assume(_receiver != address(0));
+        vm.assume(_receiver != _receiverDigest);
+
+        (uint256 minterPK, address minter) = generateWallet(minterIndex, "Minter");
+
+        qstmeGems.helper_grantRole(MINTER_ROLE, minter);
+
+        bytes32 digest = qstmeGems.composeNextClaimAllowanceDigest(_receiverDigest, _tokenId);
+
+        bytes memory signature = helper_sign(minterPK, digest);
+        uint256 balanceBefore = address(qstmeGems).balance;
+
+        vm.expectPartialRevert(IAccessControl.AccessControlUnauthorizedAccount.selector);
+
+        qstmeGems.mintGem{value: mintPrice}(_receiver, _tokenId, signature);
+
+        vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 0);
+        assertFalse(qstmeGems.mintControl(_receiver, _tokenId));
+        vm.assertEq(address(qstmeGems).balance, balanceBefore);
+    }
+
+    function test_MintGem_Claim_Revert_IfPaymentIsNotOk(
+        uint256 _payment,
+        address _receiver,
+        uint256 _tokenId,
+        uint32 minterIndex
+    ) public {
+        vm.assume(_payment < qstmeGems.mintPrice());
+        vm.assume(_receiver != address(0));
+
+        (uint256 minterPK, address minter) = generateWallet(minterIndex, "Minter");
+
+        qstmeGems.helper_grantRole(MINTER_ROLE, minter);
+
+        bytes32 digest = qstmeGems.composeNextClaimAllowanceDigest(_receiver, _tokenId);
+
+        bytes memory signature = helper_sign(minterPK, digest);
+
+        vm.expectRevert(abi.encodeWithSelector(QstmeGems.NotEnoughPayment.selector, _payment, qstmeGems.mintPrice()));
+
+        qstmeGems.mintGem{value: _payment}(_receiver, _tokenId, signature);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 0);
         assertFalse(qstmeGems.mintControl(_receiver, _tokenId));
