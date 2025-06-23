@@ -41,7 +41,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
     }
 
     function test_Claim_Revert_IfMintingSameGemSecondTime(address _receiver, uint256 _tokenId, uint32 minterIndex)
-    public
+        public
     {
         assumeUnusedAddress(_receiver);
 
@@ -168,9 +168,11 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         vm.assertEq(address(qstmeGems).balance, balanceBefore + qstmeGems.mintPrice());
     }
 
-    function test_MintGem_Claim_Revert_IfMintingSameGemSecondTime(address _receiver, uint256 _tokenId, uint32 minterIndex)
-    public
-    {
+    function test_MintGem_Claim_Revert_IfMintingSameGemSecondTime(
+        address _receiver,
+        uint256 _tokenId,
+        uint32 minterIndex
+    ) public {
         assumeUnusedAddress(_receiver);
 
         (uint256 minterPK, address minter) = generateWallet(minterIndex, "Minter");
@@ -201,7 +203,9 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         vm.assertEq(address(qstmeGems).balance, balanceBefore + mintPrice);
     }
 
-    function test_MintGem_Claim_Revert_IfSignerIsNotAMinter(address _receiver, uint256 _tokenId, uint32 signerIndex) public {
+    function test_MintGem_Claim_Revert_IfSignerIsNotAMinter(address _receiver, uint256 _tokenId, uint32 signerIndex)
+        public
+    {
         vm.assume(_receiver != address(0));
 
         (uint256 signerPK, address signer) = generateWallet(signerIndex, "Signer");
