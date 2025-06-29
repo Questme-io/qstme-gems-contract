@@ -8,7 +8,9 @@ test:
 
 deployTestnet:
 	forge script script/DeployGems.s.sol:DeployGemsScript \
-	--sig "runTestnet()" \
+	$(chain) \
+	$(testnet) \
+	--sig "deployTestnet(string,bool)" \
 	-vvvv \
 	--etherscan-api-key ${BASESCAN_API_KEY} \
 # 	--verify \
@@ -16,15 +18,17 @@ deployTestnet:
 
 deployMainnet:
 	forge script script/DeployGems.s.sol:DeployGemsScript \
-	--sig "runMainnet()" \
+	$(chain) \
+	--sig "deployMainnet(string)" \
 	-vvvv \
 	--etherscan-api-key ${BASESCAN_API_KEY} \
 # 	--verify \
 # 	--broadcast
 
-updateMainnet:
+upgradeContract:
 	forge script script/DeployGems.s.sol:DeployGemsScript \
-	--sig "updateMainnet()" \
+	$(chain) \
+	--sig "upgradeContract()" \
 	-vvvv \
 	--etherscan-api-key ${BASESCAN_API_KEY} \
 # 	--verify \
