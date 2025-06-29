@@ -317,6 +317,73 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         qstmeGems.setDefaultMintPrice(_newDefaultMintPrice);
     }
 
+    function test_SetCustomMintPrice_Ok(address _admin, uint256 _tokenId, uint248 _newCustomMintPrice) public {
+        vm.assume(_admin != address(0));
+
+        qstmeGems.helper_grantRole(DEFAULT_ADMIN_ROLE, _admin);
+
+        vm.expectEmit();
+        emit QstmeGems.CustomMintPriceSet(_tokenId, _newCustomMintPrice);
+
+        vm.prank(_admin);
+        qstmeGems.setCustomMintPrice(_tokenId, _newCustomMintPrice);
+
+        vm.assertEq(qstmeGems.getPrice(_tokenId), _newCustomMintPrice);
+    }
+
+    function test_SetCustomMintPrice_Revert_IfCallerIsNotAnAdmin(address _anonym, uint256 _tokenId, uint248 _newCustomMintPrice) public {
+        vm.assume(_anonym != address(0));
+        vm.assume(!qstmeGems.hasRole(DEFAULT_ADMIN_ROLE, _anonym));
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IAccessControl.AccessControlUnauthorizedAccount.selector, _anonym, DEFAULT_ADMIN_ROLE
+            )
+        );
+
+        vm.prank(_anonym);
+        qstmeGems.setCustomMintPrice(_tokenId, _newCustomMintPrice);
+
+        vm.assertEq(qstmeGems.getPrice(_tokenId), defaultMintPrice);
+    }
+
+    function test_UnsetCustomMintPrice_Ok(address _admin, uint256 _tokenId, uint248 _startCustomMintPrice) public {
+        vm.assume(_admin != address(0));
+
+        qstmeGems.exposed_setCustomMintPrice(_tokenId, _startCustomMintPrice);
+        qstmeGems.helper_grantRole(DEFAULT_ADMIN_ROLE, _admin);
+
+        vm.assertEq(qstmeGems.getPrice(_tokenId), _startCustomMintPrice);
+
+        vm.expectEmit();
+        emit QstmeGems.CustomMintPriceUnset(_tokenId);
+
+        vm.prank(_admin);
+        qstmeGems.unsetCustomMintPrice(_tokenId);
+
+        vm.assertEq(qstmeGems.getPrice(_tokenId), defaultMintPrice);
+    }
+
+    function test_UnsetCustomMintPrice_Revert_IfCallerIsNotAnAdmin(address _anonym, uint256 _tokenId, uint248 _startCustomMintPrice) public {
+        vm.assume(_anonym != address(0));
+        vm.assume(!qstmeGems.hasRole(DEFAULT_ADMIN_ROLE, _anonym));
+
+        qstmeGems.exposed_setCustomMintPrice(_tokenId, _startCustomMintPrice);
+
+        vm.assertEq(qstmeGems.getPrice(_tokenId), _startCustomMintPrice);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IAccessControl.AccessControlUnauthorizedAccount.selector, _anonym, DEFAULT_ADMIN_ROLE
+            )
+        );
+
+        vm.prank(_anonym);
+        qstmeGems.unsetCustomMintPrice(_tokenId);
+
+        vm.assertEq(qstmeGems.getPrice(_tokenId), _startCustomMintPrice);
+    }
+
     function test_SetTokenUri_Ok(uint256 _tokenId, string calldata _newTokenUri, uint32 operatorIndex) public {
         (uint256 operatorPK, address operator) = generateWallet(operatorIndex, "Operator");
 

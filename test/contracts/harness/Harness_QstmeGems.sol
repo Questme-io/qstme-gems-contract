@@ -7,6 +7,10 @@ contract Harness_QstmeGems is QstmeGems {
     function exposed_setDefaultMintPrice(uint256 _newDefaultMintPrice) public {
         _setDefaultMintPrice(_newDefaultMintPrice);
     }
+    function exposed_setCustomMintPrice(uint256 _token, uint248 _newCustomMintPrice) public {
+        customPrices[_token].price = _newCustomMintPrice;
+        customPrices[_token].isSet = true;
+    }
 
     function exposed_setBaseURI(string calldata _uri) public {
         _setBaseURI(_uri);
