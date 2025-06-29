@@ -34,6 +34,8 @@ contract QstmeGems is
     mapping(address user => mapping(uint256 tokenId => bool isMinted) tokenStatuses) public mintControl;
 
     event MintPriceChanged(uint256 newPrice);
+    event CustomMintPriceSet(uint256 tokenId, uint256 newPrice);
+    event CustomMintPriceUnset(uint256 tokenId);
     event GemMinted(address receiver, uint256 tokenId);
     event BaseUriChanged(string newUri);
 
@@ -142,6 +144,23 @@ contract QstmeGems is
 
     function setMintPrice(uint256 _newMintPrice) public onlyRole(DEFAULT_ADMIN_ROLE) {
         _setMintPrice(_newMintPrice);
+    }
+
+    function setCustomMintPrice(uint256 _tokenId, uint248 _newPrice) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        CustomPrice memory customPrice = customPrices[_tokenId];
+
+        customPrice.price = _newPrice;
+        customPrice.isSet = true;
+
+        customPrices[_tokenId] = customPrice;
+
+        emit CustomMintPriceSet(_tokenId, _newPrice);
+    }
+
+    function unsetCustomMintPrice(uint256 _tokenId) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        customPrices[_tokenId].isSet = false;
+
+        emit CustomMintPriceUnset(_tokenId);
     }
 
     function setTokenURI(uint256 _tokenId, string calldata _uri, bytes calldata _signature) public {
