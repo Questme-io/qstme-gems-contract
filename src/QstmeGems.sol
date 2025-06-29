@@ -33,7 +33,7 @@ contract QstmeGems is
     mapping(uint256 tokenId => CustomPrice customPrice) public customPrices;
     mapping(address user => mapping(uint256 tokenId => bool isMinted) tokenStatuses) public mintControl;
 
-    event MintPriceChanged(uint256 newPrice);
+    event DefaultMintPriceChanged(uint256 newPrice);
     event CustomMintPriceSet(uint256 tokenId, uint256 newPrice);
     event CustomMintPriceUnset(uint256 tokenId);
     event GemMinted(address receiver, uint256 tokenId);
@@ -56,7 +56,7 @@ contract QstmeGems is
         _grantRole(OPERATOR_ROLE, _operator);
         _grantRole(MINTER_ROLE, _minter);
 
-        _setMintPrice(_mintPrice);
+        _setDefaultMintPrice(_mintPrice);
         _setBaseURI(_baseUri);
     }
 
@@ -142,8 +142,8 @@ contract QstmeGems is
         }
     }
 
-    function setMintPrice(uint256 _newMintPrice) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        _setMintPrice(_newMintPrice);
+    function setDefaultMintPrice(uint256 _newMintPrice) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _setDefaultMintPrice(_newMintPrice);
     }
 
     function setCustomMintPrice(uint256 _tokenId, uint248 _newPrice) public onlyRole(DEFAULT_ADMIN_ROLE) {
@@ -180,10 +180,10 @@ contract QstmeGems is
         _withdraw(payable(_receiver), _asset);
     }
 
-    function _setMintPrice(uint256 _newMintPrice) internal {
+    function _setDefaultMintPrice(uint256 _newMintPrice) internal {
         defaultMintPrice = _newMintPrice;
 
-        emit MintPriceChanged(_newMintPrice);
+        emit DefaultMintPriceChanged(_newMintPrice);
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyRole(OPERATOR_ROLE) {}
