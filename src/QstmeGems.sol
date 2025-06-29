@@ -87,6 +87,16 @@ contract QstmeGems is
         ERC1155SupplyUpgradeable._update(from, to, ids, values);
     }
 
+    function getPrice(uint256 _tokenId) public view returns(uint256) {
+        CustomPrice memory customPrice = customPrices[_tokenId];
+
+        if (customPrice.isSet) {
+            return customPrice.price;
+        }
+
+        return defaultMintPrice;
+    }
+
     function mintGem(address _receiver, uint256 _tokenId, bytes calldata _signature) public payable {
         claim(_receiver, _tokenId, _signature);
     }
@@ -104,6 +114,8 @@ contract QstmeGems is
     function claim(address _receiver, uint256 _tokenId, bytes calldata _signature) public payable {
         _checkRole(MINTER_ROLE, _extractClaimSigner(_receiver, _tokenId, _signature));
         _incrementClaimNonce(_receiver);
+
+        uint256 mintPrice = getPrice(_tokenId);
 
         if (msg.value < mintPrice) revert NotEnoughPayment(msg.value, mintPrice);
 
