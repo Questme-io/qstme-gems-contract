@@ -3,6 +3,7 @@ pragma solidity ^0.8.10;
 
 import {Script} from "lib/forge-std/src/Script.sol";
 import {QstmeGems} from "../src/QstmeGems.sol";
+import {SafeSingletonDeployer} from "./helpers/SafeSingletonDeployer.sol";
 import {ERC1967Proxy} from "@openzeppelin/5.3.0/proxy/ERC1967/ERC1967Proxy.sol";
 
 contract DeployGemsScript is Script {
@@ -11,38 +12,42 @@ contract DeployGemsScript is Script {
     QstmeGems public constant proxy = QstmeGems(0x7D5aCbAEE4aCcAA4c6fF9ca3F663DD9C28F5df6E);
     uint256 public constant mintFee = 50_000_000_000_000;
     string public constant baseUri = "https://ipfs.io/ipfs/";
+    bytes32 public constant SALT = keccak256("QstmeGems");
 
-    function runTestnet() public {
-        vm.createSelectFork("baseSepolia");
+    function deployTestnet(string memory chain, bool isTestnet) public {
+        require(isTestnet, "Not marked as testnet");
+        vm.createSelectFork(chain);
+
+        require(address(proxy).code.length == 0, "Already deployed");
+
         uint256 deployerPK = vm.envUint("DEPLOYER_KEY");
+        uint256 operatorPK = vm.envUint("OPERATOR_KEY");
 
-        vm.broadcast(deployerPK);
-        QstmeGems implementation = new QstmeGems();
+        address gems = _deployGems(deployerPK);
 
-        vm.broadcast(deployerPK);
-        ERC1967Proxy proxy = new ERC1967Proxy(address(implementation), "");
-
-        vm.broadcast(deployerPK);
-        QstmeGems(address(proxy)).initialize(mintFee, baseUri, operator, operator, operator);
+        vm.broadcast(operatorPK);
+        QstmeGems(address(gems)).initialize(mintFee, baseUri, operator, operator, operator);
     }
 
-    function runMainnet() public {
-        require(address(proxy) == address(0), "Already deployed");
-        vm.createSelectFork("base");
+    function deployMainnet(string memory chain) public {
+        vm.createSelectFork(chain);
+
+        require(address(proxy).code.length == 0, "Already deployed");
+
         uint256 deployerPK = vm.envUint("DEPLOYER_KEY");
+        uint256 operatorPK = vm.envUint("OPERATOR_KEY");
 
-        vm.broadcast(deployerPK);
-        QstmeGems implementation = new QstmeGems();
+        address gems = _deployGems(deployerPK);
 
-        vm.broadcast(deployerPK);
-        ERC1967Proxy proxy = new ERC1967Proxy(address(implementation), "");
-
-        vm.broadcast(deployerPK);
-        QstmeGems(address(proxy)).initialize(mintFee, baseUri, admin, operator, operator);
+        vm.broadcast(operatorPK);
+        QstmeGems(address(gems)).initialize(mintFee, baseUri, admin, operator, operator);
     }
 
-    function updateMainnet() public {
+    function upgradeContract(string memory chain) public {
         vm.createSelectFork("base");
+
+        require(address(proxy).code.length != 0, "Not deployed");
+
         uint256 deployerPK = vm.envUint("DEPLOYER_KEY");
         uint256 operatorPK = vm.envUint("OPERATOR_KEY");
 
@@ -51,5 +56,25 @@ contract DeployGemsScript is Script {
 
         vm.broadcast(operatorPK);
         proxy.upgradeToAndCall(address(implementation), "");
+    }
+
+    function _deployGems(uint256 deployerPK) internal returns(address) {
+        bytes memory gemsCreationCode = type(QstmeGems).creationCode;
+
+        address qstmeGems = SafeSingletonDeployer.broadcastDeploy({
+            deployerPrivateKey: deployerPK,
+            creationCode: gemsCreationCode,
+            args: "",
+            salt: SALT
+        });
+
+        address proxy = SafeSingletonDeployer.broadcastDeploy({
+            deployerPrivateKey: deployerPK,
+            creationCode: type(ERC1967Proxy).creationCode,
+            args: abi.encode(address(qstmeGems), ""),
+            salt: SALT
+        });
+
+        return proxy;
     }
 }
