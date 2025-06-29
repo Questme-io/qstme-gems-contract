@@ -4,8 +4,8 @@ pragma solidity ^0.8.10;
 import {QstmeGems} from "src/QstmeGems.sol";
 
 contract Harness_QstmeGems is QstmeGems {
-    function exposed_setMintPrice(uint256 _newMintPrice) public {
-        _setMintPrice(_newMintPrice);
+    function exposed_setDefaultMintPrice(uint256 _newDefaultMintPrice) public {
+        _setDefaultMintPrice(_newDefaultMintPrice);
     }
 
     function exposed_setBaseURI(string calldata _uri) public {

@@ -32,7 +32,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
 
         string memory expectedFullUri = string.concat(baseUri, _newTokenUri);
         uint256 balanceBefore = address(qstmeGems).balance;
-        uint256 mintPrice = qstmeGems.mintPrice();
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectEmit();
         emit QstmeGems.GemMinted(_receiver, _tokenId);
@@ -43,7 +43,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         qstmeGems.lazyClaim{value: mintPrice}(_receiver, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 1);
-        vm.assertEq(address(qstmeGems).balance, balanceBefore + qstmeGems.mintPrice());
+        vm.assertEq(address(qstmeGems).balance, balanceBefore + mintPrice);
         assertTrue(qstmeGems.mintControl(_receiver, _tokenId));
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(expectedFullUri));
     }
@@ -74,7 +74,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
 
         string memory expectedFullUri = string.concat(baseUri, _newTokenUri);
         uint256 balanceBefore = address(qstmeGems).balance;
-        uint256 mintPrice = qstmeGems.mintPrice();
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectEmit();
         emit QstmeGems.GemMinted(_receiver1, _tokenId);
@@ -88,7 +88,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         vm.assertEq(qstmeGems.balanceOf(_receiver2, _tokenId), 0);
         assertTrue(qstmeGems.mintControl(_receiver1, _tokenId));
         assertFalse(qstmeGems.mintControl(_receiver2, _tokenId));
-        vm.assertEq(address(qstmeGems).balance, balanceBefore + qstmeGems.mintPrice());
+        vm.assertEq(address(qstmeGems).balance, balanceBefore + mintPrice);
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(expectedFullUri));
 
         // Second execution
@@ -105,7 +105,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         vm.assertEq(qstmeGems.balanceOf(_receiver2, _tokenId), 1);
         assertTrue(qstmeGems.mintControl(_receiver1, _tokenId));
         assertTrue(qstmeGems.mintControl(_receiver2, _tokenId));
-        vm.assertEq(address(qstmeGems).balance, balanceBefore + qstmeGems.mintPrice() * 2);
+        vm.assertEq(address(qstmeGems).balance, balanceBefore + mintPrice * 2);
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(expectedFullUri));
     }
 
@@ -132,7 +132,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
 
         string memory expectedFullUri = string.concat(baseUri, _newTokenUri);
         uint256 balanceBefore = address(qstmeGems).balance;
-        uint256 mintPrice = qstmeGems.mintPrice();
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectEmit();
         emit QstmeGems.GemMinted(_receiver, _tokenId);
@@ -144,7 +144,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 1);
         assertTrue(qstmeGems.mintControl(_receiver, _tokenId));
-        vm.assertEq(address(qstmeGems).balance, balanceBefore + qstmeGems.mintPrice());
+        vm.assertEq(address(qstmeGems).balance, balanceBefore + mintPrice);
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(expectedFullUri));
 
         // Second execution
@@ -158,7 +158,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 1);
         assertTrue(qstmeGems.mintControl(_receiver, _tokenId));
-        vm.assertEq(address(qstmeGems).balance, balanceBefore + qstmeGems.mintPrice());
+        vm.assertEq(address(qstmeGems).balance, balanceBefore + mintPrice);
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(expectedFullUri));
     }
 
@@ -183,7 +183,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         bytes memory signatureUpdateUri = helper_sign(operatorPK, digestUpdateUri);
 
         uint256 balanceBefore = address(qstmeGems).balance;
-        uint256 mintPrice = qstmeGems.mintPrice();
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectRevert(
             abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, anonym, MINTER_ROLE)
@@ -221,7 +221,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         bytes memory signatureUpdateUri = helper_sign(operatorPK, digestUpdateUri);
 
         uint256 balanceBefore = address(qstmeGems).balance;
-        uint256 mintPrice = qstmeGems.mintPrice();
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectPartialRevert(IAccessControl.AccessControlUnauthorizedAccount.selector);
 
@@ -254,7 +254,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         bytes memory signatureUpdateUri = helper_sign(anonymPK, digestUpdateUri);
 
         uint256 balanceBefore = address(qstmeGems).balance;
-        uint256 mintPrice = qstmeGems.mintPrice();
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectRevert(
             abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, anonym, OPERATOR_ROLE)
@@ -293,7 +293,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
 
         string memory expectedFullUri = string.concat(baseUri, _newTokenUri);
         uint256 balanceBefore = address(qstmeGems).balance;
-        uint256 mintPrice = qstmeGems.mintPrice();
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectPartialRevert(IAccessControl.AccessControlUnauthorizedAccount.selector);
 
@@ -313,8 +313,10 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         uint32 _minterIndex,
         uint32 _operatorIndex
     ) public {
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
+
         assumeUnusedAddress(_receiver);
-        vm.assume(_payment < qstmeGems.mintPrice());
+        vm.assume(_payment < mintPrice);
 
         (uint256 minterPK, address minter) = generateWallet(_minterIndex, "Minter");
         (uint256 operatorPK, address operator) = generateWallet(_operatorIndex, "Operator");
@@ -330,9 +332,8 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
 
         string memory expectedFullUri = string.concat(baseUri, _newTokenUri);
         uint256 balanceBefore = address(qstmeGems).balance;
-        uint256 mintPrice = qstmeGems.mintPrice();
 
-        vm.expectRevert(abi.encodeWithSelector(QstmeGems.NotEnoughPayment.selector, _payment, qstmeGems.mintPrice()));
+        vm.expectRevert(abi.encodeWithSelector(QstmeGems.NotEnoughPayment.selector, _payment, mintPrice));
 
         qstmeGems.lazyClaim{value: _payment}(_receiver, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
 
@@ -365,7 +366,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
 
         string memory expectedFullUri = string.concat(baseUri, _newTokenUri);
         uint256 balanceBefore = address(qstmeGems).balance;
-        uint256 mintPrice = qstmeGems.mintPrice();
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectEmit();
         emit QstmeGems.GemMinted(_receiver, _tokenId);
@@ -376,7 +377,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         qstmeGems.mintGem{value: mintPrice}(_receiver, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 1);
-        vm.assertEq(address(qstmeGems).balance, balanceBefore + qstmeGems.mintPrice());
+        vm.assertEq(address(qstmeGems).balance, balanceBefore + mintPrice);
         assertTrue(qstmeGems.mintControl(_receiver, _tokenId));
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(expectedFullUri));
     }
@@ -407,7 +408,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
 
         string memory expectedFullUri = string.concat(baseUri, _newTokenUri);
         uint256 balanceBefore = address(qstmeGems).balance;
-        uint256 mintPrice = qstmeGems.mintPrice();
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectEmit();
         emit QstmeGems.GemMinted(_receiver1, _tokenId);
@@ -421,7 +422,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         vm.assertEq(qstmeGems.balanceOf(_receiver2, _tokenId), 0);
         assertTrue(qstmeGems.mintControl(_receiver1, _tokenId));
         assertFalse(qstmeGems.mintControl(_receiver2, _tokenId));
-        vm.assertEq(address(qstmeGems).balance, balanceBefore + qstmeGems.mintPrice());
+        vm.assertEq(address(qstmeGems).balance, balanceBefore + mintPrice);
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(expectedFullUri));
 
         // Second execution
@@ -438,7 +439,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         vm.assertEq(qstmeGems.balanceOf(_receiver2, _tokenId), 1);
         assertTrue(qstmeGems.mintControl(_receiver1, _tokenId));
         assertTrue(qstmeGems.mintControl(_receiver2, _tokenId));
-        vm.assertEq(address(qstmeGems).balance, balanceBefore + qstmeGems.mintPrice() * 2);
+        vm.assertEq(address(qstmeGems).balance, balanceBefore + mintPrice * 2);
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(expectedFullUri));
     }
 
@@ -465,7 +466,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
 
         string memory expectedFullUri = string.concat(baseUri, _newTokenUri);
         uint256 balanceBefore = address(qstmeGems).balance;
-        uint256 mintPrice = qstmeGems.mintPrice();
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectEmit();
         emit QstmeGems.GemMinted(_receiver, _tokenId);
@@ -477,7 +478,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 1);
         assertTrue(qstmeGems.mintControl(_receiver, _tokenId));
-        vm.assertEq(address(qstmeGems).balance, balanceBefore + qstmeGems.mintPrice());
+        vm.assertEq(address(qstmeGems).balance, balanceBefore + mintPrice);
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(expectedFullUri));
 
         // Second execution
@@ -491,7 +492,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 1);
         assertTrue(qstmeGems.mintControl(_receiver, _tokenId));
-        vm.assertEq(address(qstmeGems).balance, balanceBefore + qstmeGems.mintPrice());
+        vm.assertEq(address(qstmeGems).balance, balanceBefore + mintPrice);
         vm.assertEq(toComparable(qstmeGems.uri(_tokenId)), toComparable(expectedFullUri));
     }
 
@@ -516,7 +517,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         bytes memory signatureUpdateUri = helper_sign(operatorPK, digestUpdateUri);
 
         uint256 balanceBefore = address(qstmeGems).balance;
-        uint256 mintPrice = qstmeGems.mintPrice();
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectRevert(
             abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, anonym, MINTER_ROLE)
@@ -554,7 +555,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         bytes memory signatureUpdateUri = helper_sign(operatorPK, digestUpdateUri);
 
         uint256 balanceBefore = address(qstmeGems).balance;
-        uint256 mintPrice = qstmeGems.mintPrice();
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectPartialRevert(IAccessControl.AccessControlUnauthorizedAccount.selector);
 
@@ -587,7 +588,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         bytes memory signatureUpdateUri = helper_sign(anonymPK, digestUpdateUri);
 
         uint256 balanceBefore = address(qstmeGems).balance;
-        uint256 mintPrice = qstmeGems.mintPrice();
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectRevert(
             abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, anonym, OPERATOR_ROLE)
@@ -626,7 +627,7 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
 
         string memory expectedFullUri = string.concat(baseUri, _newTokenUri);
         uint256 balanceBefore = address(qstmeGems).balance;
-        uint256 mintPrice = qstmeGems.mintPrice();
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectPartialRevert(IAccessControl.AccessControlUnauthorizedAccount.selector);
 
@@ -646,8 +647,10 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
         uint32 _minterIndex,
         uint32 _operatorIndex
     ) public {
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
+
         assumeUnusedAddress(_receiver);
-        vm.assume(_payment < qstmeGems.mintPrice());
+        vm.assume(_payment < mintPrice);
 
         (uint256 minterPK, address minter) = generateWallet(_minterIndex, "Minter");
         (uint256 operatorPK, address operator) = generateWallet(_operatorIndex, "Operator");
@@ -663,9 +666,8 @@ abstract contract Suite_QstmeGems_LazyClaim is Storage_QstmeGems {
 
         string memory expectedFullUri = string.concat(baseUri, _newTokenUri);
         uint256 balanceBefore = address(qstmeGems).balance;
-        uint256 mintPrice = qstmeGems.mintPrice();
 
-        vm.expectRevert(abi.encodeWithSelector(QstmeGems.NotEnoughPayment.selector, _payment, qstmeGems.mintPrice()));
+        vm.expectRevert(abi.encodeWithSelector(QstmeGems.NotEnoughPayment.selector, _payment, mintPrice));
 
         qstmeGems.mintGem{value: _payment}(_receiver, _tokenId, _newTokenUri, signatureClaim, signatureUpdateUri);
 

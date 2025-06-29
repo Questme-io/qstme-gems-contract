@@ -12,7 +12,7 @@ abstract contract Storage_QstmeGems is Test {
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
     string public constant TEST_MNEMONIC = "test test test test test test test test test test test junk";
 
-    uint256 public mintPrice = 1e9;
+    uint256 public defaultMintPrice = 1e9;
     string public baseUri = "baseUri://";
 
     address public admin = address(1);

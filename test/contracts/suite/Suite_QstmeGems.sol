@@ -15,7 +15,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         assertTrue(qstmeGems.hasRole(DEFAULT_ADMIN_ROLE, admin));
         assertTrue(qstmeGems.hasRole(OPERATOR_ROLE, operator));
         assertFalse(qstmeGems.mintControl(_receiver, _tokenId));
-        assertEq(qstmeGems.mintPrice(), mintPrice);
+        assertEq(qstmeGems.defaultMintPrice(), defaultMintPrice);
     }
 
     function test_Claim_Ok(address _receiver, uint256 _tokenId, uint32 minterIndex) public {
@@ -30,14 +30,16 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         bytes memory signature = helper_sign(minterPK, digest);
         uint256 balanceBefore = address(qstmeGems).balance;
 
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
+
         vm.expectEmit();
         emit QstmeGems.GemMinted(_receiver, _tokenId);
 
-        qstmeGems.claim{value: qstmeGems.mintPrice()}(_receiver, _tokenId, signature);
+        qstmeGems.claim{value: mintPrice}(_receiver, _tokenId, signature);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 1);
         assertTrue(qstmeGems.mintControl(_receiver, _tokenId));
-        vm.assertEq(address(qstmeGems).balance, balanceBefore + qstmeGems.mintPrice());
+        vm.assertEq(address(qstmeGems).balance, balanceBefore + mintPrice);
     }
 
     function test_Claim_Revert_IfMintingSameGemSecondTime(address _receiver, uint256 _tokenId, uint32 minterIndex)
@@ -53,7 +55,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
 
         bytes memory signature = helper_sign(minterPK, digest);
         uint256 balanceBefore = address(qstmeGems).balance;
-        uint256 mintPrice = qstmeGems.mintPrice();
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectEmit();
         emit QstmeGems.GemMinted(_receiver, _tokenId);
@@ -82,6 +84,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
 
         bytes memory signature = helper_sign(signerPK, digest);
         uint256 balanceBefore = address(qstmeGems).balance;
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectRevert(
             abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, signer, MINTER_ROLE)
@@ -111,6 +114,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
 
         bytes memory signature = helper_sign(minterPK, digest);
         uint256 balanceBefore = address(qstmeGems).balance;
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectPartialRevert(IAccessControl.AccessControlUnauthorizedAccount.selector);
 
@@ -127,7 +131,9 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         uint256 _tokenId,
         uint32 minterIndex
     ) public {
-        vm.assume(_payment < qstmeGems.mintPrice());
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
+
+        vm.assume(_payment < qstmeGems.getPrice(mintPrice));
         vm.assume(_receiver != address(0));
 
         (uint256 minterPK, address minter) = generateWallet(minterIndex, "Minter");
@@ -138,7 +144,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
 
         bytes memory signature = helper_sign(minterPK, digest);
 
-        vm.expectRevert(abi.encodeWithSelector(QstmeGems.NotEnoughPayment.selector, _payment, qstmeGems.mintPrice()));
+        vm.expectRevert(abi.encodeWithSelector(QstmeGems.NotEnoughPayment.selector, _payment, mintPrice));
 
         qstmeGems.claim{value: _payment}(_receiver, _tokenId, signature);
 
@@ -157,15 +163,16 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
 
         bytes memory signature = helper_sign(minterPK, digest);
         uint256 balanceBefore = address(qstmeGems).balance;
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectEmit();
         emit QstmeGems.GemMinted(_receiver, _tokenId);
 
-        qstmeGems.mintGem{value: qstmeGems.mintPrice()}(_receiver, _tokenId, signature);
+        qstmeGems.mintGem{value: mintPrice}(_receiver, _tokenId, signature);
 
         vm.assertEq(qstmeGems.balanceOf(_receiver, _tokenId), 1);
         assertTrue(qstmeGems.mintControl(_receiver, _tokenId));
-        vm.assertEq(address(qstmeGems).balance, balanceBefore + qstmeGems.mintPrice());
+        vm.assertEq(address(qstmeGems).balance, balanceBefore + mintPrice);
     }
 
     function test_MintGem_Claim_Revert_IfMintingSameGemSecondTime(
@@ -183,7 +190,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
 
         bytes memory signature = helper_sign(minterPK, digest);
         uint256 balanceBefore = address(qstmeGems).balance;
-        uint256 mintPrice = qstmeGems.mintPrice();
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectEmit();
         emit QstmeGems.GemMinted(_receiver, _tokenId);
@@ -214,6 +221,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
 
         bytes memory signature = helper_sign(signerPK, digest);
         uint256 balanceBefore = address(qstmeGems).balance;
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectRevert(
             abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, signer, MINTER_ROLE)
@@ -243,6 +251,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
 
         bytes memory signature = helper_sign(minterPK, digest);
         uint256 balanceBefore = address(qstmeGems).balance;
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
 
         vm.expectPartialRevert(IAccessControl.AccessControlUnauthorizedAccount.selector);
 
@@ -259,7 +268,9 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         uint256 _tokenId,
         uint32 minterIndex
     ) public {
-        vm.assume(_payment < qstmeGems.mintPrice());
+        uint256 mintPrice = qstmeGems.getPrice(_tokenId);
+
+        vm.assume(_payment < mintPrice);
         vm.assume(_receiver != address(0));
 
         (uint256 minterPK, address minter) = generateWallet(minterIndex, "Minter");
@@ -270,7 +281,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
 
         bytes memory signature = helper_sign(minterPK, digest);
 
-        vm.expectRevert(abi.encodeWithSelector(QstmeGems.NotEnoughPayment.selector, _payment, qstmeGems.mintPrice()));
+        vm.expectRevert(abi.encodeWithSelector(QstmeGems.NotEnoughPayment.selector, _payment, mintPrice));
 
         qstmeGems.mintGem{value: _payment}(_receiver, _tokenId, signature);
 
@@ -278,21 +289,21 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         assertFalse(qstmeGems.mintControl(_receiver, _tokenId));
     }
 
-    function test_SetMintPrice_Ok(address _admin, uint256 _newMintPrice) public {
+    function test_SetDefaultMintPrice_Ok(address _admin, uint256 _newDefaultMintPrice) public {
         vm.assume(_admin != address(0));
 
         qstmeGems.helper_grantRole(DEFAULT_ADMIN_ROLE, _admin);
 
         vm.expectEmit();
-        emit QstmeGems.MintPriceChanged(_newMintPrice);
+        emit QstmeGems.DefaultMintPriceChanged(_newDefaultMintPrice);
 
         vm.prank(admin);
-        qstmeGems.setMintPrice(_newMintPrice);
+        qstmeGems.setDefaultMintPrice(_newDefaultMintPrice);
 
-        vm.assertEq(qstmeGems.mintPrice(), _newMintPrice);
+        vm.assertEq(qstmeGems.defaultMintPrice(), _newDefaultMintPrice);
     }
 
-    function test_SetMintPrice_Revert_IfCallerIsNotAnAdmin(address _anonym, uint256 _newMintPrice) public {
+    function test_SetMintPrice_Revert_IfCallerIsNotAnAdmin(address _anonym, uint256 _newDefaultMintPrice) public {
         vm.assume(_anonym != address(0));
         vm.assume(!qstmeGems.hasRole(DEFAULT_ADMIN_ROLE, _anonym));
 
@@ -303,7 +314,7 @@ abstract contract Suite_QstmeGems is Storage_QstmeGems {
         );
 
         vm.prank(_anonym);
-        qstmeGems.setMintPrice(_newMintPrice);
+        qstmeGems.setDefaultMintPrice(_newDefaultMintPrice);
     }
 
     function test_SetTokenUri_Ok(uint256 _tokenId, string calldata _newTokenUri, uint32 operatorIndex) public {

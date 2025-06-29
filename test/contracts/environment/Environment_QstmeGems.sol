@@ -8,6 +8,6 @@ abstract contract Environment_QstmeGems is Storage_QstmeGems {
     function _prepareEnv() internal override {
         qstmeGems = new Harness_QstmeGems();
 
-        qstmeGems.initialize(mintPrice, baseUri, admin, operator, minter);
+        qstmeGems.initialize(defaultMintPrice, baseUri, admin, operator, minter);
     }
 }
