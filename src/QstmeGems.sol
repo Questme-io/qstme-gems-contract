@@ -20,11 +20,17 @@ contract QstmeGems is
     WithdrawingController,
     UUPSUpgradeable
 {
+    struct CustomPrice {
+        uint248 price;
+        bool isSet;
+    }
+
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     string public constant name = "QuestMe GEM"; // Name for opensea
 
-    uint256 public mintPrice;
+    uint256 public defaultMintPrice;
+    mapping(uint256 tokenId => CustomPrice customPrice) public customPrices;
     mapping(address user => mapping(uint256 tokenId => bool isMinted) tokenStatuses) public mintControl;
 
     event MintPriceChanged(uint256 newPrice);
@@ -144,7 +150,7 @@ contract QstmeGems is
     }
 
     function _setMintPrice(uint256 _newMintPrice) internal {
-        mintPrice = _newMintPrice;
+        defaultMintPrice = _newMintPrice;
 
         emit MintPriceChanged(_newMintPrice);
     }
