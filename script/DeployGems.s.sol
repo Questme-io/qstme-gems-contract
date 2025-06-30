@@ -9,7 +9,7 @@ import {ERC1967Proxy} from "@openzeppelin/5.3.0/proxy/ERC1967/ERC1967Proxy.sol";
 contract DeployGemsScript is Script {
     address public constant operator = 0x91430EC444FD8249e152aDf82a73f985b031276E;
     address public constant admin = 0x885CefFc2f5428C3A2C5895204335ED6dcf466a1;
-    QstmeGems public constant proxy = QstmeGems(0x7D5aCbAEE4aCcAA4c6fF9ca3F663DD9C28F5df6E);
+    QstmeGems public constant proxy = QstmeGems(0xa69a396c45Bd525f8516a43242580c4E88BbA401);
     uint256 public constant mintFee = 50_000_000_000_000;
     string public constant baseUri = "https://ipfs.io/ipfs/";
     bytes32 public constant SALT = keccak256("QstmeGems");
